@@ -196,26 +196,6 @@ Open your browser and navigate to `http://localhost:5000`.
 | `GET` | `/api/orders` | Get logged-in user orders | Private |
 | `GET` | `/api/orders/:id` | Get specific order by ID | Private |
 
----
-
-## 🚀 Deployment Instructions
-
-### Option 1: Render Deployment (Full Stack / Backend)
-1. Push your repository to GitHub.
-2. Log into [Render](https://render.com/) and click **New + -> Web Service**.
-3. Connect your GitHub repository.
-4. Set Build Command: `npm install`
-5. Set Start Command: `npm start`
-6. Add Environment Variables (`MONGODB_URI`, `JWT_SECRET`, `NODE_ENV=production`, etc.).
-7. Click **Create Web Service**.
-
-### Option 2: Netlify Deployment (Frontend Only)
-1. In your Netlify dashboard, click **Add new site -> Import from existing project**.
-2. Set Build Settings:
-   - Publish directory: `client`
-3. If using an external Render backend, set `API_BASE_URL` in `client/js/api.js` to your deployed Render URL.
-
----
 
 ## 📋 Evaluation & Testing Checklist
 
