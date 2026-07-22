@@ -301,7 +301,6 @@ const autoSeedIfEmpty = async () => {
         },
       ];
 
-      // Remove any old items if upgrading currency to INR
       await Product.deleteMany({});
       const inserted = await Product.create(seedProducts);
       console.log(`[Auto-Seed Completed]: ${inserted.length} products inserted with INR (₹) pricing!`);
@@ -334,26 +333,35 @@ const autoSeedIfEmpty = async () => {
 };
 
 const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 2500,
-    });
-    console.log(`[MongoDB Connected]: ${conn.connection.host}`);
-    await autoSeedIfEmpty();
-  } catch (error) {
-    console.warn(`[MongoDB Notice]: Could not connect to local MongoDB at ${process.env.MONGODB_URI}.`);
-    console.log(`[MongoDB Notice]: Initializing in-memory MongoDB Server for instant demo execution...`);
+  if (process.env.MONGODB_URI) {
     try {
-      const { MongoMemoryServer } = require('mongodb-memory-server');
-      const mongoServer = await MongoMemoryServer.create();
-      const mongoUri = mongoServer.getUri();
-      const conn = await mongoose.connect(mongoUri);
-      console.log(`[MongoDB Memory Server Connected]: ${conn.connection.host}`);
+      const conn = await mongoose.connect(process.env.MONGODB_URI, {
+        serverSelectionTimeoutMS: 5000,
+      });
+      console.log(`[MongoDB Connected]: ${conn.connection.host}`);
       await autoSeedIfEmpty();
-    } catch (memErr) {
-      console.error(`[MongoDB Error]: ${memErr.message}`);
-      process.exit(1);
+      return;
+    } catch (error) {
+      console.error(`[MongoDB Error]: Could not connect to MONGODB_URI: ${error.message}`);
     }
+  }
+
+  // Fallback to in-memory database with Debian 12 compatible binary version
+  console.log(`[MongoDB Notice]: Initializing in-memory MongoDB Server (Version 7.0.3)...`);
+  try {
+    const { MongoMemoryServer } = require('mongodb-memory-server');
+    const mongoServer = await MongoMemoryServer.create({
+      binary: {
+        version: '7.0.3',
+      },
+    });
+    const mongoUri = mongoServer.getUri();
+    const conn = await mongoose.connect(mongoUri);
+    console.log(`[MongoDB Memory Server Connected]: ${conn.connection.host}`);
+    await autoSeedIfEmpty();
+  } catch (memErr) {
+    console.error(`[MongoDB Memory Server Error]: ${memErr.message}`);
+    process.exit(1);
   }
 };
 
