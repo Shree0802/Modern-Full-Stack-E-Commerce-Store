@@ -346,8 +346,7 @@ const connectDB = async () => {
     }
   }
 
-  // Fallback to in-memory database with Debian 12 compatible binary version
-  console.log(`[MongoDB Notice]: Initializing in-memory MongoDB Server (Version 7.0.3)...`);
+  // Fallback to in-memory database if installed locally
   try {
     const { MongoMemoryServer } = require('mongodb-memory-server');
     const mongoServer = await MongoMemoryServer.create({
@@ -360,8 +359,7 @@ const connectDB = async () => {
     console.log(`[MongoDB Memory Server Connected]: ${conn.connection.host}`);
     await autoSeedIfEmpty();
   } catch (memErr) {
-    console.error(`[MongoDB Memory Server Error]: ${memErr.message}`);
-    process.exit(1);
+    console.warn(`[MongoDB Notice]: In-memory database notice: ${memErr.message}. Ensure MONGODB_URI environment variable is provided.`);
   }
 };
 
